@@ -1,0 +1,901 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Hogg Chapter 6 Lab</title>
+<style>
+/* Layout: one column lecture-note page; tab bar on top; each lab = controls strip, then chart beside candidate table. */
+:root{
+  --bg:#f2f5f7; --surface:#ffffff; --ink:#15242e; --muted:#566874; --line:#d3dce2;
+  --curve:#0e6f8e; --hl:#ffe27a; --hl-ink:#3a2c00; --max-ink:#b06f00; --true:#5b6b76; --cand:#8a3fa8;
+  --display:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f181e; --surface:#17232b; --ink:#e6edf1; --muted:#9bb0bc; --line:#2c3c47;
+  --curve:#4fb8d8; --hl:#6b5200; --hl-ink:#fff3c4; --max-ink:#ffc93d; --true:#9bb0bc; --cand:#d08bea; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0f181e; --surface:#17232b; --ink:#e6edf1; --muted:#9bb0bc; --line:#2c3c47;
+  --curve:#4fb8d8; --hl:#6b5200; --hl-ink:#fff3c4; --max-ink:#ffc93d; --true:#9bb0bc; --cand:#d08bea; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.layout{display:grid;grid-template-columns:236px minmax(0,1fr);gap:44px;max-width:1380px;margin:0 auto;padding-inline:16px;padding-block:28px 56px}
+.wrap{min-width:0;max-width:1040px}
+header.top{display:flex;flex-direction:column;gap:4px;margin-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-size:clamp(28px,5vw,40px);line-height:1.1;margin:0;font-weight:600;text-wrap:balance}
+h2{font-family:var(--display);font-size:24px;margin:0 0 6px;font-weight:600;text-wrap:balance}
+h3{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+p{margin:0;max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--line);margin-bottom:24px}
+nav.tabs button{font:inherit;font-weight:600;color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 14px;cursor:pointer}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--curve);border-bottom-color:var(--curve)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cand);outline-offset:2px}
+
+.math{font-family:var(--display);font-size:1.08em;white-space:nowrap}
+.math i{font-style:italic}
+.eq{font-family:var(--display);font-size:19px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--curve);padding:12px 16px;overflow-x:auto;white-space:nowrap}
+.eq b.mx, .mxinline{background:var(--hl);color:var(--hl-ink);font-weight:700;padding:1px 6px;border-radius:3px}
+
+ol.toc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+ol.toc li{border-bottom:1px solid var(--line)}
+ol.toc a{display:grid;grid-template-columns:3.2em 1fr;gap:4px 12px;padding:14px 4px;color:inherit;text-decoration:none}
+ol.toc a:hover .t{color:var(--curve);text-decoration:underline}
+ol.toc .num{font-family:var(--display);font-size:22px;color:var(--curve)}
+ol.toc .t{font-weight:600}
+ol.toc .d{grid-column:2;color:var(--muted);font-size:14.5px}
+
+ol.recipe{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);padding:14px 16px}
+.ctl{display:flex;flex-direction:column;gap:2px;min-width:150px;flex:1 1 150px}
+.ctl label{font-size:13px;color:var(--muted)}
+.ctl output{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.ctl input[type=range]{width:100%;accent-color:var(--curve)}
+.btn{font:inherit;font-weight:600;background:var(--curve);color:var(--bg);border:0;padding:9px 16px;border-radius:4px;cursor:pointer}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:none;color:var(--curve);border:1px solid var(--curve)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+
+.sample{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;gap:6px 10px}
+.dots{display:flex;flex-wrap:wrap;gap:5px}
+.dots span{width:14px;height:14px;border-radius:50%;border:2px solid var(--curve);background:transparent}
+.dots span.s{background:var(--curve)}
+.stat{font-size:15px}
+.stat b{font-family:var(--mono)}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+figure{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+figcaption{font-size:13.5px;color:var(--muted)}
+svg.chart{width:100%;height:auto;background:var(--surface);border:1px solid var(--line);display:block}
+svg .gridl{stroke:var(--line);stroke-width:1;fill:none}
+svg .tick{fill:var(--muted);font:11px var(--mono)}
+svg .axl{fill:var(--muted);font:12px var(--body)}
+svg .curve{fill:none;stroke:var(--curve);stroke-width:2.5}
+svg .area{fill:var(--curve);opacity:.13;stroke:none}
+svg line.max{stroke:var(--max-ink);stroke-width:3;fill:none}
+svg circle.max{fill:var(--max-ink);stroke:var(--surface);stroke-width:2}
+svg line.true{stroke:var(--true);stroke-width:2;stroke-dasharray:7 5;fill:none}
+svg circle.true{fill:var(--true);stroke:none}
+svg line.cand{stroke:var(--cand);stroke-width:2;stroke-dasharray:2 4;fill:none}
+svg circle.cand{fill:var(--cand);stroke:var(--surface);stroke-width:2}
+svg line.stem{stroke:var(--cand);stroke-width:1.5;fill:none}
+svg circle.pt{fill:var(--ink);stroke:none}
+svg .dens{fill:none;stroke:var(--cand);stroke-width:2.5}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.legend .lmax{border-color:var(--max-ink)} .legend .ltrue{border-color:var(--true);border-top-style:dashed} .legend .lcand{border-color:var(--cand);border-top-style:dotted}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-family:var(--body);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.bar{width:70px;padding-left:0}
+td.bar span{display:block;height:9px;background:var(--curve);opacity:.55;min-width:1px}
+tr.max td{background:var(--hl);color:var(--hl-ink);font-weight:800;font-size:15px;border-top:2px solid var(--max-ink);border-bottom:2px solid var(--max-ink)}
+tr.max td.bar span{background:var(--max-ink);opacity:1}
+.tag{font-family:var(--body);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px}
+.readout{background:var(--surface);border:1px dashed var(--cand);padding:10px 14px;font-size:15px}
+.readout b{font-family:var(--mono)}
+.note{color:var(--muted);font-size:14.5px}
+p.hastip{position:relative}
+.tip{display:inline-block;font-family:var(--body);font-size:13px;font-weight:700;color:var(--curve);border:1px solid var(--curve);border-radius:99px;padding:0 9px;margin-left:4px;cursor:help;white-space:nowrap}
+.tip .bubble{display:none;position:absolute;left:0;top:100%;margin-top:8px;z-index:5;width:min(460px,100%);box-sizing:border-box;background:var(--ink);color:var(--bg);font-weight:400;font-size:14px;line-height:1.5;white-space:normal;padding:12px 14px;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.tip:hover .bubble,.tip:focus .bubble,.tip:focus-within .bubble{display:block}
+.bubble b{font-weight:700}
+.step{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);padding:14px 16px}
+.step h4{margin:0;font-size:15px;display:flex;gap:10px;align-items:baseline}
+.step h4 .sn{font-family:var(--display);color:var(--curve);font-size:20px}
+.step .eq{border-left-width:3px}
+.step .why{color:var(--muted);font-size:14.5px;max-width:68ch}
+.step .eq.res{border-left-color:var(--max-ink)}
+
+math{font-family:"STIX Two Math","Latin Modern Math","Cambria Math","Noto Sans Math","Times New Roman",serif;font-size:1.12em}
+.eq math{math-style:normal;font-size:1.18em}
+.step h4 math{font-size:1.1em}
+math .mx{background:var(--hl);color:var(--hl-ink);padding:2px 8px;border-radius:3px}
+.eq.res math .mx{outline:2px solid var(--max-ink)}
+.bubble math{font-size:1.1em}
+
+[hidden]{display:none!important}
+#o1-table td:first-child,#o2-table td:first-child{white-space:normal}
+#o1-table th,#o2-table th{text-transform:none;letter-spacing:0;font-size:12.5px}
+.tblwrap table{font-size:13px}
+@media (max-width:1280px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;display:flex;flex-direction:column;gap:14px}
+.side .book{font-family:var(--display);font-size:18px;font-weight:600;line-height:1.25;text-wrap:balance}
+.side .ch{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.side ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.side li{display:flex}
+.side button{flex:1;text-align:left;font:inherit;color:var(--ink);background:none;border:0;border-bottom:1px solid var(--line);border-left:4px solid transparent;padding:12px 8px 12px 12px;cursor:pointer;display:grid;grid-template-columns:2.5em minmax(0,1fr);gap:8px;align-items:baseline}
+.side button:hover{background:var(--surface)}
+.side button .sn{font-family:var(--display);font-weight:600;font-size:18px;color:var(--curve)}
+.side button[aria-current="page"]{border-left-color:var(--curve);background:var(--surface);font-weight:600}
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:20px}
+  .side{position:static}
+  .side ul{flex-direction:row;flex-wrap:wrap;gap:8px;border-top:0}
+  .side li{flex:1 1 220px}
+  .side button{border:1px solid var(--line);border-left-width:4px}
+}
+select{font:inherit;padding:7px 8px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:4px;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tblwrap.tall{max-height:340px;overflow-y:auto}
+svg .bar{fill:var(--curve);opacity:.35}
+svg .barhl{fill:var(--max-ink)}
+svg .theory{fill:none;stroke:var(--max-ink);stroke-width:3}
+svg .popf{fill:none;stroke:var(--true);stroke-width:1.5;stroke-dasharray:5 4}
+svg .axisl{stroke:var(--muted);stroke-width:1.5}
+svg line.covok{stroke:var(--curve);stroke-width:3}
+svg line.covno{stroke:var(--cand);stroke-width:3}
+svg rect.span{fill:var(--hl);opacity:.8}
+svg text.lbl{fill:var(--ink);font:600 12px var(--body)}
+svg text.lblm{fill:var(--muted);font:11px var(--body)}
+.legend .lth{border-color:var(--max-ink)}
+.legend .lpop{border-color:var(--true);border-top-style:dashed}
+.legend .lbar{border:0;height:10px;background:var(--curve);opacity:.4}
+.legend .lbarhl{border:0;height:10px;background:var(--max-ink)}
+.legend .lcov{border-color:var(--curve)}
+.legend .lmiss{border-color:var(--cand)}
+.badge{display:inline-block;padding:1px 9px;border-radius:3px;font-weight:700;font-size:13px}
+.badge.ok{background:var(--hl);color:var(--hl-ink)}
+.badge.no{background:var(--cand);color:var(--bg)}
+</style>
+
+<div class="layout">
+  <aside class="side">
+    <div><div class="ch">Hogg · Chapter 6</div><div class="book">Probability and Statistical Inference: Point Estimation</div></div>
+    <ul>
+      <li><button data-go="os-contents" aria-current="false"><span class="sn">6.3</span><span>Order Statistics</span></button></li>
+      <li><button data-go="mle-contents" aria-current="false"><span class="sn">6.4</span><span>Maximum Likelihood Estimation</span></button></li>
+    </ul>
+  </aside>
+  <main class="wrap">
+  <div id="sec-os" hidden>
+    <header class="top"><span class="eyebrow">Hogg · Probability and Statistical Inference · Section 6.3</span><h1>Order Statistics</h1></header>
+    <nav class="tabs" role="tablist"><button role="tab" data-go="os-contents" aria-selected="false">Contents</button><button role="tab" data-go="os-intro" aria-selected="false">What are order statistics?</button><button role="tab" data-go="os-dist" aria-selected="false">Lab 1: distribution of Y<sub>r</sub></button><button role="tab" data-go="os-pct" aria-selected="false">Lab 2: percentiles and intervals</button></nav>
+  <section id="pane-os-contents" class="stack pane" hidden>
+    <p>An order statistic is a sample value after the sample has been sorted. The smallest, the largest and the median are all order statistics, and they lead directly to percentiles and to confidence intervals that make no assumption about the shape of the distribution.</p>
+    <ol class="toc">
+      <li><a href="#os-intro" data-go="os-intro"><span class="num">1</span><span class="t">What are order statistics?</span><span class="d">The definition, the pdf of <math><msub><mi>Y</mi><mn>1</mn></msub></math>, <math><msub><mi>Y</mi><mi>n</mi></msub></math> and of any <math><msub><mi>Y</mi><mi>r</mi></msub></math>, sample percentiles, and a distribution-free confidence interval for <math><msub><mi>π</mi><mi>p</mi></msub></math>.</span></a></li>
+      <li><a href="#os-dist" data-go="os-dist"><span class="num">2</span><span class="t">Lab 1: the distribution of <math><msub><mi>Y</mi><mi>r</mi></msub></math></span><span class="d">Simulate thousands of samples, keep the <math><mi>r</mi></math>th smallest value, and compare its histogram with <math><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math>.</span></a></li>
+      <li><a href="#os-pct" data-go="os-pct"><span class="num">3</span><span class="t">Lab 2: percentiles and confidence intervals</span><span class="d">Choose <math><mi>n</mi></math>, <math><mi>p</mi></math>, <math><mi>i</mi></math> and <math><mi>j</mi></math>, see the exact confidence level <math><mo>∑</mo><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>k</mi></mrow></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mi>k</mi></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></math>, and check it by simulation.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="pane-os-intro" class="stack pane" hidden>
+    <h2>The idea</h2>
+    <p>Let <math><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub></math> be a random sample from a continuous distribution with cdf <math><mi>F</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></math> and pdf <math><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>F</mi><mo>′</mo><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></math>. Put the observations in increasing order:</p>
+    <div class="eq"><math><msub><mi>Y</mi><mn>1</mn></msub><mo>&lt;</mo><msub><mi>Y</mi><mn>2</mn></msub><mo>&lt;</mo><mo>⋯</mo><mo>&lt;</mo><msub><mi>Y</mi><mi>n</mi></msub></math></div>
+    <p><math><msub><mi>Y</mi><mi>r</mi></msub></math> is the <b><math><mi>r</mi></math>th order statistic</b>. <math><msub><mi>Y</mi><mn>1</mn></msub></math> is the minimum, <math><msub><mi>Y</mi><mi>n</mi></msub></math> is the maximum, and for odd <math><mi>n</mi></math> the sample median is <math><msub><mi>Y</mi><mrow><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>/</mo><mn>2</mn></mrow></msub></math>. Because the distribution is continuous, ties have probability 0.</p>
+    <p class="note">The <math><msub><mi>Y</mi><mi>r</mi></msub></math> are statistics, but they are neither independent nor identically distributed: <math><msub><mi>Y</mi><mn>1</mn></msub><mo>&lt;</mo><msub><mi>Y</mi><mn>2</mn></msub></math> always. Their joint pdf is <math><mi>n</mi><mo>!</mo><mspace width="0.17em"></mspace><mi>f</mi><mo stretchy="false">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false">)</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false">)</mo><mo>⋯</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false">)</mo></math> for <math><msub><mi>y</mi><mn>1</mn></msub><mo>&lt;</mo><mo>⋯</mo><mo>&lt;</mo><msub><mi>y</mi><mi>n</mi></msub></math>.</p>
+
+    <h3>Minimum and maximum</h3>
+    <p>Start from the cdf. The maximum is at most <math><mi>y</mi></math> only if every observation is at most <math><mi>y</mi></math>, and the observations are independent:</p>
+    <div class="eq"><math><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>n</mi></msub><mo>≤</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>≤</mo><mi>y</mi><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub><mo>≤</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mrow><mo fence="true" stretchy="true">[</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi></mrow></msup></math></div>
+    <div class="eq"><math><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mi>n</mi><msup><mrow><mo fence="true" stretchy="true">[</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math></div>
+    <p>The minimum exceeds <math><mi>y</mi></math> only if every observation exceeds <math><mi>y</mi></math>:</p>
+    <div class="eq"><math><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>≤</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>&gt;</mo><mi>y</mi><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub><mo>&gt;</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo fence="true" stretchy="true">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi></mrow></msup></math></div>
+    <div class="eq"><math><msub><mi>g</mi><mn>1</mn></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mi>n</mi><msup><mrow><mo fence="true" stretchy="true">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math></div>
+    <p class="note">Example. If <math><mi>X</mi></math> is exponential with mean <math><mi>θ</mi></math>, then <math><mi>F</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>x</mi><mo>/</mo><mi>θ</mi></mrow></msup></math> and <math><msub><mi>g</mi><mn>1</mn></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mi>θ</mi></mrow></mfrac><msup><mi>e</mi><mrow><mo>−</mo><mi>n</mi><mi>y</mi><mo>/</mo><mi>θ</mi></mrow></msup></math>. The minimum of <math><mi>n</mi></math> observations is exponential with mean <math><mi>θ</mi><mo>/</mo><mi>n</mi></math>.</p>
+
+    <h3>The pdf of <math><msub><mi>Y</mi><mi>r</mi></msub></math></h3>
+    <div class="eq res"><math><mrow class="mx"><mrow><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>n</mi><mo>!</mo></mrow><mrow><mo stretchy="false">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>!</mo><mspace width="0.17em"></mspace><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>r</mi><mo stretchy="false">)</mo><mo>!</mo></mrow></mfrac><msup><mrow><mo fence="true" stretchy="true">[</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>r</mi><mo>−</mo><mn>1</mn></mrow></msup><msup><mrow><mo fence="true" stretchy="true">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi><mo>−</mo><mi>r</mi></mrow></msup><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></mrow></mrow></math></div>
+    <p>Why this form: <math><msub><mi>Y</mi><mi>r</mi></msub></math> lands in a tiny interval <math><mo stretchy="false">(</mo><mi>y</mi><mo>,</mo><mi>y</mi><mo>+</mo><mi>Δ</mi><mo stretchy="false">)</mo></math> when <math><mi>r</mi><mo>−</mo><mn>1</mn></math> observations fall below <math><mi>y</mi></math> (probability <math><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math> each), one falls inside the interval (probability about <math><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mi>Δ</mi></math>), and <math><mi>n</mi><mo>−</mo><mi>r</mi></math> fall above <math><mi>y</mi></math> (probability <math><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math> each). The factor <math><mfrac><mrow><mi>n</mi><mo>!</mo></mrow><mrow><mo stretchy="false">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>!</mo><mspace width="0.17em"></mspace><mn>1</mn><mo>!</mo><mspace width="0.17em"></mspace><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>r</mi><mo stretchy="false">)</mo><mo>!</mo></mrow></mfrac></math> counts which observations play which role. For <math><mi>r</mi><mo>=</mo><mi>n</mi></math> it reduces to <math><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math> above.</p>
+    <p>The cdf of <math><msub><mi>Y</mi><mi>r</mi></msub></math> is a binomial sum, because <math><msub><mi>Y</mi><mi>r</mi></msub><mo>≤</mo><mi>y</mi></math> means that at least <math><mi>r</mi></math> observations are at most <math><mi>y</mi></math>:</p>
+    <div class="eq"><math><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>r</mi></msub><mo>≤</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mi>r</mi></mrow><mrow><mi>n</mi></mrow></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>k</mi></mrow></mfrac><mo>)</mo></mrow><msup><mrow><mo fence="true" stretchy="true">[</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>k</mi></mrow></msup><msup><mrow><mo fence="true" stretchy="true">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></math></div>
+    <p class="note">Example. For the uniform distribution on <math><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false">)</mo></math>, <math><mi>F</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mi>y</mi></math> and <math><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>n</mi><mo>!</mo></mrow><mrow><mo stretchy="false">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>!</mo><mspace width="0.17em"></mspace><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>r</mi><mo stretchy="false">)</mo><mo>!</mo></mrow></mfrac><mspace width="0.17em"></mspace><msup><mi>y</mi><mrow><mi>r</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>r</mi></mrow></msup></math> for <math><mn>0</mn><mo>&lt;</mo><mi>y</mi><mo>&lt;</mo><mn>1</mn></math>. This is a beta pdf with mean <math><mi>E</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>r</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>r</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac></math>.</p>
+
+    <h3>Sample percentiles</h3>
+    <p>The <math><mo stretchy="false">(</mo><mn>100</mn><mi>p</mi><mo stretchy="false">)</mo></math>th percentile <math><msub><mi>π</mi><mi>p</mi></msub></math> of the distribution satisfies <math><mi>F</mi><mo stretchy="false">(</mo><msub><mi>π</mi><mi>p</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mi>p</mi></math>. The sample version uses the <math><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mi>p</mi></math>th ordered observation. Let <math><mi>r</mi><mo>=</mo><mo>⌊</mo><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mi>p</mi><mo>⌋</mo></math>; when <math><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mi>p</mi></math> is not an integer, interpolate between neighbours:</p>
+    <div class="eq"><math><msub><mover accent="true"><mi>π</mi><mo>˜</mo></mover><mi>p</mi></msub><mo>=</mo><msub><mi>Y</mi><mi>r</mi></msub><mo>+</mo><mrow><mo fence="true" stretchy="true">[</mo><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mi>p</mi><mo>−</mo><mi>r</mi><mo fence="true" stretchy="true">]</mo></mrow><mrow><mo fence="true" stretchy="true">(</mo><msub><mi>Y</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><msub><mi>Y</mi><mi>r</mi></msub><mo fence="true" stretchy="true">)</mo></mrow></math></div>
+    <p class="note">The factor <math><mi>n</mi><mo>+</mo><mn>1</mn></math> comes from the uniform example: <math><mi>E</mi><mrow><mo fence="true" stretchy="true">[</mo><mi>F</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>r</mi></msub><mo stretchy="false">)</mo><mo fence="true" stretchy="true">]</mo></mrow><mo>=</mo><mfrac><mrow><mi>r</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac></math>, so <math><msub><mi>Y</mi><mi>r</mi></msub></math> sits near the <math><mn>100</mn><mspace width="0.17em"></mspace><mfrac><mrow><mi>r</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac></math> percentile. For the median, <math><mi>p</mi><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math> and <math><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mi>p</mi><mo>=</mo><mfrac><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math>.</p>
+
+    <h3>A confidence interval for <math><msub><mi>π</mi><mi>p</mi></msub></math></h3>
+    <p>Let <math><mi>W</mi></math> be the number of observations below <math><msub><mi>π</mi><mi>p</mi></msub></math>. Each observation falls below <math><msub><mi>π</mi><mi>p</mi></msub></math> with probability <math><mi>p</mi></math>, so <math><mi>W</mi><mo>∼</mo><mi>b</mi><mo stretchy="false">(</mo><mi>n</mi><mo>,</mo><mi>p</mi><mo stretchy="false">)</mo></math>. The event <math><msub><mi>Y</mi><mi>i</mi></msub><mo>&lt;</mo><msub><mi>π</mi><mi>p</mi></msub><mo>&lt;</mo><msub><mi>Y</mi><mi>j</mi></msub></math> happens exactly when at least <math><mi>i</mi></math> but fewer than <math><mi>j</mi></math> observations are below <math><msub><mi>π</mi><mi>p</mi></msub></math>, that is, <math><mi>i</mi><mo>≤</mo><mi>W</mi><mo>≤</mo><mi>j</mi><mo>−</mo><mn>1</mn></math>:</p>
+    <div class="eq res"><math><mrow class="mx"><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo>&lt;</mo><msub><mi>π</mi><mi>p</mi></msub><mo>&lt;</mo><msub><mi>Y</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mi>i</mi></mrow><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>k</mi></mrow></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mrow><mi>k</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></mrow></mrow></math></div>
+    <p>The answer does not involve <math><mi>F</mi></math>, so the interval <math><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo>,</mo><msub><mi>Y</mi><mi>j</mi></msub><mo stretchy="false">)</mo></math> is a confidence interval for <math><msub><mi>π</mi><mi>p</mi></msub></math> whatever the continuous distribution is.</p>
+    <p class="note">Example. Median (<math><mi>p</mi><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac></math>), <math><mi>n</mi><mo>=</mo><mn>9</mn></math>, interval <math><mo stretchy="false">(</mo><msub><mi>Y</mi><mn>3</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>7</mn></msub><mo stretchy="false">)</mo></math>: <math><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><mrow><mn>6</mn></mrow></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mn>9</mn></mrow><mrow><mi>k</mi></mrow></mfrac><mo>)</mo></mrow><msup><mrow><mo fence="true" stretchy="true">(</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn></mrow></mfrac><mo fence="true" stretchy="true">)</mo></mrow><mrow><mn>9</mn></mrow></msup><mo>=</mo><mfrac><mrow><mn>84</mn><mo>+</mo><mn>126</mn><mo>+</mo><mn>126</mn><mo>+</mo><mn>84</mn></mrow><mrow><mn>512</mn></mrow></mfrac><mo>=</mo><mn>0.8203</mn></math>. Lab 2 starts from these values.</p>
+    <p class="row"><button class="btn" data-go="os-dist">Try Lab 1</button> <button class="btn ghost" data-go="os-pct">Try Lab 2</button></p>
+  </section>
+
+  <section id="pane-os-dist" class="stack pane" hidden>
+    <h2>Lab 1: the distribution of <math><msub><mi>Y</mi><mi>r</mi></msub></math></h2>
+    <p>Pick a population, <math><mi>n</mi></math> and <math><mi>r</mi></math>. The page draws many samples of size <math><mi>n</mi></math>, keeps the <math><mi>r</mi></math>th smallest value of each, and compares the histogram of those values with the formula <math><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math>.</p>
+    <div class="controls">
+      <div class="ctl"><label for="o1-dist">Population</label>
+        <select id="o1-dist"><option value="uniform">Uniform(0, 1)</option><option value="exp">Exponential, θ = 1</option><option value="normal">Normal, μ = 50, σ² = 16</option></select></div>
+      <div class="ctl"><label for="o1-n">Sample size n: <output id="o1-n-out"></output></label><input type="range" id="o1-n" min="2" max="30" step="1" value="9"></div>
+      <div class="ctl"><label for="o1-r">Order r: <output id="o1-r-out"></output></label><input type="range" id="o1-r" min="1" max="9" step="1" value="5"></div>
+      <div class="ctl"><label for="o1-N">Simulated samples</label>
+        <select id="o1-N"><option>500</option><option selected>2000</option><option>10000</option></select></div>
+      <button class="btn" id="o1-draw">Simulate again</button>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="o1-min">Minimum (r = 1)</button>
+      <button class="btn ghost" id="o1-mid">Middle</button>
+      <button class="btn ghost" id="o1-max">Maximum (r = n)</button>
+    </div>
+    <div class="stack" style="gap:8px">
+      <h3>Last simulated sample, in order</h3>
+      <figure>
+        <svg class="chart" id="o1-strip" viewBox="0 0 640 100" role="img" aria-label="One sorted sample on a number line"></svg>
+        <figcaption>The highlighted point is the <math><mi>r</mi></math>th smallest value. Repeating this many times gives the histogram below.</figcaption>
+      </figure>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <figure>
+          <svg class="chart" id="o1-hist" viewBox="0 0 640 300" role="img" aria-label="Histogram of simulated order statistics with theoretical density"></svg>
+          <div class="legend"><span><i class="lbar"></i>simulated <math><msub><mi>Y</mi><mi>r</mi></msub></math></span><span><i class="lth"></i>formula <math><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math></span><span><i class="lpop"></i>population <math><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math></span><span><i class="ltrue"></i><math><mi>E</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>r</mi></msub><mo stretchy="false">)</mo></math></span><span><i class="lcand"></i>your <math><mi>y</mi></math></span></div>
+          <figcaption id="o1-cap"></figcaption>
+        </figure>
+        <div class="controls">
+          <div class="ctl"><label for="o1-y">Evaluate at y = <output id="o1-y-out"></output></label><input type="range" id="o1-y" min="0" max="1" step="0.001" value="0.5"></div>
+        </div>
+        <div class="readout" id="o1-stat"></div>
+      </div>
+      <div class="stack" style="gap:8px">
+        <h3>Building <math><msub><mi>g</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo></math> at your <math><mi>y</mi></math></h3>
+        <div class="tblwrap"><table id="o1-table"></table></div>
+        <p class="note">The highlighted row is the value of the density at your <math><mi>y</mi></math>. The last two rows give <math><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>r</mi></msub><mo>≤</mo><mi>y</mi><mo stretchy="false">)</mo></math> from the binomial sum and from the simulation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pane-os-pct" class="stack pane" hidden>
+    <h2>Lab 2: percentiles and confidence intervals</h2>
+    <p>The interval <math><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo>,</mo><msub><mi>Y</mi><mi>j</mi></msub><mo stretchy="false">)</mo></math> covers <math><msub><mi>π</mi><mi>p</mi></msub></math> with probability <math><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mi>i</mi></mrow><mrow><mi>j</mi><mo>−</mo><mn>1</mn></mrow></munderover><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>k</mi></mrow></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mi>k</mi></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></math>. Change <math><mi>n</mi></math>, <math><mi>p</mi></math>, <math><mi>i</mi></math> and <math><mi>j</mi></math>, then check the formula by simulating many samples.</p>
+    <div class="controls">
+      <div class="ctl"><label for="o2-dist">Population</label>
+        <select id="o2-dist"><option value="uniform">Uniform(0, 1)</option><option value="exp">Exponential, θ = 1</option><option value="normal" selected>Normal, μ = 50, σ² = 16</option></select></div>
+      <div class="ctl"><label for="o2-n">Sample size n: <output id="o2-n-out"></output></label><input type="range" id="o2-n" min="5" max="60" step="1" value="9"></div>
+      <div class="ctl"><label for="o2-p">Percentile p: <output id="o2-p-out"></output></label><input type="range" id="o2-p" min="0.05" max="0.95" step="0.05" value="0.5"></div>
+      <div class="ctl"><label for="o2-i">Lower index i: <output id="o2-i-out"></output></label><input type="range" id="o2-i" min="1" max="8" step="1" value="3"></div>
+      <div class="ctl"><label for="o2-j">Upper index j: <output id="o2-j-out"></output></label><input type="range" id="o2-j" min="2" max="9" step="1" value="7"></div>
+    </div>
+    <div class="controls">
+      <div class="ctl"><label for="o2-g">Target confidence</label>
+        <select id="o2-g"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+      <button class="btn ghost" id="o2-suggest">Suggest i and j</button>
+      <button class="btn" id="o2-draw">Draw one sample</button>
+      <button class="btn" id="o2-run">Run 1000 samples</button>
+    </div>
+    <div class="stack" style="gap:8px">
+      <h3>One sample, in order</h3>
+      <figure>
+        <svg class="chart" id="o2-strip" viewBox="0 0 640 120" role="img" aria-label="Sorted sample with confidence interval and true percentile"></svg>
+        <div class="legend"><span><i class="lth"></i>interval from <math><msub><mi>Y</mi><mi>i</mi></msub></math> to <math><msub><mi>Y</mi><mi>j</mi></msub></math></span><span><i class="ltrue"></i>true <math><msub><mi>π</mi><mi>p</mi></msub></math></span><span><i class="lcand"></i>sample percentile <math><msub><mover accent="true"><mi>π</mi><mo>˜</mo></mover><mi>p</mi></msub></math></span></div>
+      </figure>
+      <div class="readout" id="o2-stat"></div>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <figure>
+          <svg class="chart" id="o2-pmf" viewBox="0 0 640 250" role="img" aria-label="Binomial probabilities for W with the summed terms highlighted"></svg>
+          <div class="legend"><span><i class="lbarhl"></i>terms <math><mi>k</mi><mo>=</mo><mi>i</mi><mo>,</mo><mo>…</mo><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></math> (summed)</span><span><i class="lbar"></i>other values of <math><mi>k</mi></math></span></div>
+          <figcaption>Distribution of <math><mi>W</mi><mo>∼</mo><mi>b</mi><mo stretchy="false">(</mo><mi>n</mi><mo>,</mo><mi>p</mi><mo stretchy="false">)</mo></math>, the number of observations below <math><msub><mi>π</mi><mi>p</mi></msub></math>.</figcaption>
+        </figure>
+      </div>
+      <div class="stack" style="gap:8px">
+        <h3>Terms of the sum</h3>
+        <div class="tblwrap tall"><table id="o2-table"></table></div>
+        <p class="note">The highlighted row is the exact confidence level <math><mi>P</mi><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo>&lt;</mo><msub><mi>π</mi><mi>p</mi></msub><mo>&lt;</mo><msub><mi>Y</mi><mi>j</mi></msub><mo stretchy="false">)</mo></math>.</p>
+      </div>
+    </div>
+    <div class="stack" style="gap:8px">
+      <h3>Repeated sampling</h3>
+      <figure>
+        <svg class="chart" id="o2-cover" viewBox="0 0 640 280" role="img" aria-label="First forty simulated confidence intervals against the true percentile"></svg>
+        <div class="legend"><span><i class="lcov"></i>covers <math><msub><mi>π</mi><mi>p</mi></msub></math></span><span><i class="lmiss"></i>misses <math><msub><mi>π</mi><mi>p</mi></msub></math></span><span><i class="ltrue"></i>true <math><msub><mi>π</mi><mi>p</mi></msub></math></span></div>
+        <figcaption>The first 40 intervals of the last run.</figcaption>
+      </figure>
+      <div class="readout" id="o2-covstat"></div>
+    </div>
+  </section>
+
+  </div>
+  <div id="sec-mle" hidden>
+    <header class="top"><span class="eyebrow">Hogg · Probability and Statistical Inference · Section 6.4</span><h1>Maximum Likelihood Estimation</h1></header>
+    <nav class="tabs" role="tablist"><button role="tab" data-go="mle-contents" aria-selected="false">Contents</button><button role="tab" data-go="mle-intro" aria-selected="false">What is MLE?</button><button role="tab" data-go="mle-binomial" aria-selected="false">Binomial lab</button><button role="tab" data-go="mle-normal" aria-selected="false">Normal lab</button></nav>
+  <section id="pane-mle-contents" class="stack pane" hidden>
+    <p>We observe a sample and want to estimate an unknown parameter. Maximum likelihood picks the parameter value under which the data we actually saw are most probable. Read the idea first, then try it on simulated samples.</p>
+    <ol class="toc">
+      <li><a href="#mle-intro" data-go="mle-intro"><span class="num">1</span><span class="t">What is MLE?</span><span class="d">The likelihood function, the four-step recipe, and the two results used in the labs.</span></a></li>
+      <li><a href="#mle-binomial" data-go="mle-binomial"><span class="num">2</span><span class="t">Binomial lab: estimating <math><mi>p</mi></math></span><span class="d">Choose the true <math><mi>p</mi></math> and <math><mi>n</mi></math>, draw a sample, and compare <math><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></math> across candidate values of <math><mover accent="true"><mi>p</mi><mo>^</mo></mover></math>.</span></a></li>
+      <li><a href="#mle-normal" data-go="mle-normal"><span class="num">3</span><span class="t">Normal lab: estimating <math><mi>μ</mi></math></span><span class="d">Draw 10 observations from <math><mi>N</mi><mo stretchy="false">(</mo><mn>50</mn><mo>,</mo><mn>16</mn><mo stretchy="false">)</mo></math> and compare <math><mi>L</mi><mo stretchy="false">(</mo><mi>μ</mi><mo stretchy="false">)</mo></math> across candidate values of <math><mover accent="true"><mi>μ</mi><mo>^</mo></mover></math>.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="pane-mle-intro" class="stack pane" hidden>
+    <h2>The idea</h2>
+    <p>Suppose <math><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub></math> is a random sample from a distribution with pmf or pdf <math><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo></math>, where <math><mi>θ</mi></math> is unknown. After we observe <math><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>x</mi><mi>n</mi></msub></math>, the data are fixed numbers. We then ask which value of <math><mi>θ</mi></math> makes these numbers most likely.</p>
+    <h3>Likelihood function</h3>
+    <div class="eq"><math><mi>L</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo><mspace width="0.17em"></mspace><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>⋯</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>n</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo></math></div>
+    <p>It is the joint pmf or pdf of the sample, read as a function of <math><mi>θ</mi></math> with the data held fixed. The <b>maximum likelihood estimate</b> <math><mover accent="true"><mi>θ</mi><mo>^</mo></mover></math> is the value of <math><mi>θ</mi></math> that maximizes <math><mi>L</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo></math>.</p>
+    <p class="note">Probability asks: given <math><mi>θ</mi></math>, how likely are different samples? Likelihood asks: given this sample, how plausible are different values of <math><mi>θ</mi></math>? <math><mi>L</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo></math> is not a probability distribution for <math><mi>θ</mi></math> and need not add up to 1.</p>
+
+    <h3>Recipe</h3>
+    <ol class="recipe">
+      <li>Write the likelihood <math><mi>L</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo></math> as the product of the <math><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="false">)</mo></math>.</li>
+      <li>Take the natural log. Since ln is increasing, <math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo></math> has its maximum at the same <math><mi>θ</mi></math>, and a product becomes a sum.</li>
+      <li>Differentiate with respect to <math><mi>θ</mi></math> and set the derivative equal to 0.</li>
+      <li>Solve for <math><mi>θ</mi></math> and check that the solution is a maximum.</li>
+    </ol>
+
+    <h2>Example 1: Bernoulli trials</h2>
+    <p>Each <math><msub><mi>x</mi><mi>i</mi></msub></math> is 1 (success) or 0 (failure) with <math><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>;</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>p</mi><mrow><mi>x</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></msup></math>. Let <math><mi>x</mi><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><msub><mi>x</mi><mi>i</mi></msub></math> be the number of successes in <math><mi>n</mi></math> trials.</p>
+    <div class="eq"><math><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><msup><mi>p</mi><mrow><msub><mi>x</mi><mi>i</mi></msub></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mn>1</mn><mo>−</mo><msub><mi>x</mi><mi>i</mi></msub></mrow></msup><mo>=</mo><msup><mi>p</mi><mrow><mi>x</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>x</mi></mrow></msup></math></div>
+    <div class="eq"><math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mi>x</mi><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>p</mi><mo>+</mo><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false">)</mo></math></div>
+    <div class="eq"><math><mfrac><mrow><mi>d</mi></mrow><mrow><mi>d</mi><mi>p</mi></mrow></mfrac><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>x</mi></mrow><mrow><mi>p</mi></mrow></mfrac><mo>−</mo><mfrac><mrow><mi>n</mi><mo>−</mo><mi>x</mi></mrow><mrow><mn>1</mn><mo>−</mo><mi>p</mi></mrow></mfrac><mo>=</mo><mn>0</mn><mspace width="2em"></mspace><mo>⟹</mo><mspace width="2em"></mspace><mrow class="mx"><mrow><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><mi>x</mi></mrow><mrow><mi>n</mi></mrow></mfrac><mo>=</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover></mrow></mrow></math></div>
+    <p class="hastip">The estimate is the sample proportion of successes. Where is the binomial coefficient?
+      <span class="tip" tabindex="0" role="note" aria-label="Where is the binomial coefficient?"><math><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math> ?
+        <span class="bubble"><b>Two ways to see the data.</b><br>
+        <b>1. The <math><mi>n</mi></math> trials as a 0/1 sequence.</b> The probability of that exact sequence is <math><msup><mi>p</mi><mrow><mi>x</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>x</mi></mrow></msup></math>. The order is known, so there is no <math><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math>.<br>
+        <b>2. Only the count <math><mi>X</mi><mo>∼</mo><mi>b</mi><mo stretchy="false">(</mo><mi>n</mi><mo>,</mo><mi>p</mi><mo stretchy="false">)</mo></math>.</b> Now <math><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math> different sequences give the same count, so <math><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow><msup><mi>p</mi><mrow><mi>x</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>x</mi></mrow></msup></math>.<br>
+        <math><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math> does not contain <math><mi>p</mi></math>. It adds the constant <math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math> to <math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi></math>, which vanishes when we differentiate, so both versions give <math><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo>=</mo><mi>x</mi><mo>/</mo><mi>n</mi></math>. In the binomial lab the L column is version 1; multiply by <math><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>n</mi></mrow><mrow><mi>x</mi></mrow></mfrac><mo>)</mo></mrow></math> to get the binomial pmf.</span>
+      </span></p>
+
+    <h2>Example 2: Normal distribution</h2>
+    <p>Let <math><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub></math> be a random sample from <math><mi>N</mi><mo stretchy="false">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math>, with both <math><mi>μ</mi></math> and <math><msup><mi>σ</mi><mn>2</mn></msup></math> unknown. Here is the whole derivation, one step at a time. All sums run over <math><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>n</mi></math>.</p>
+
+    <div class="step">
+      <h4><span class="sn">1</span>Start from the density of one observation</h4>
+      <div class="eq"><math><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>;</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><msup><mrow><mo fence="true" stretchy="true">(</mo><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup><mo fence="true" stretchy="true">)</mo></mrow><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup><mspace width="0.12em"></mspace><mi>exp</mi><mrow><mo fence="true" stretchy="true">[</mo><mo>−</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo fence="true" stretchy="true">]</mo></mrow></math></div>
+    </div>
+
+    <div class="step">
+      <h4><span class="sn">2</span>Write the likelihood: multiply the <math><mi>n</mi></math> densities</h4>
+      <div class="eq"><math><mi>L</mi><mo stretchy="false">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><msup><mrow><mo fence="true" stretchy="true">(</mo><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup><mo fence="true" stretchy="true">)</mo></mrow><mrow><mo>−</mo><mi>n</mi><mo>/</mo><mn>2</mn></mrow></msup><mspace width="0.12em"></mspace><mi>exp</mi><mrow><mo fence="true" stretchy="true">[</mo><mo>−</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo fence="true" stretchy="true">]</mo></mrow></math></div>
+      <p class="why">The <math><mi>n</mi></math> copies of <math><mo stretchy="false">(</mo><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup><msup><mo stretchy="false">)</mo><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup></math> multiply to the power <math><mo>−</mo><mi>n</mi><mo>/</mo><mn>2</mn></math>. The <math><mi>n</mi></math> exponentials multiply by adding their exponents, which turns the separate squares into one sum.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="sn">3</span>Take the natural log</h4>
+      <div class="eq"><math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi><mo>=</mo><mo>−</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mn>2</mn></mrow></mfrac><mspace width="0.12em"></mspace><mi>ln</mi><mrow><mo fence="true" stretchy="true">(</mo><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup><mo fence="true" stretchy="true">)</mo></mrow><mo>−</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac></math></div>
+      <div class="eq"><math><mspace width="2em"></mspace><mo>=</mo><mo>−</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mn>2</mn></mrow></mfrac><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><mn>2</mn><mi>π</mi><mo stretchy="false">)</mo><mo>−</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mn>2</mn></mrow></mfrac><mspace width="0.12em"></mspace><mi>ln</mi><mrow><mo fence="true" stretchy="true">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo fence="true" stretchy="true">)</mo></mrow><mo>−</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac></math></div>
+      <p class="why">Rules used: <math><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><mi>a</mi><mi>b</mi><mo stretchy="false">)</mo><mo>=</mo><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>a</mi><mo>+</mo><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>b</mi></math>, <math><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><msup><mi>a</mi><mi>k</mi></msup><mo stretchy="false">)</mo><mo>=</mo><mi>k</mi><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>a</mi></math>, and <math><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><msup><mi>e</mi><mi>u</mi></msup><mo stretchy="false">)</mo><mo>=</mo><mi>u</mi></math>. The product has become a sum, which is much easier to differentiate.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="sn">4</span>Differentiate with respect to <math><mi>μ</mi></math> and set it to 0</h4>
+      <div class="eq"><math><mfrac><mrow><mo>∂</mo><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi></mrow><mrow><mo>∂</mo><mi>μ</mi></mrow></mfrac><mo>=</mo><mo>−</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mn>2</mn><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn></math></div>
+      <div class="eq"><math><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>n</mi><mi>μ</mi><mo>=</mo><mn>0</mn><mspace width="2em"></mspace><mo>⟹</mo><mspace width="2em"></mspace><mrow class="mx"><mrow><mover accent="true"><mi>μ</mi><mo>^</mo></mover><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><msub><mi>x</mi><mi>i</mi></msub></mrow><mrow><mi>n</mi></mrow></mfrac><mo>=</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover></mrow></mrow></math></div>
+      <p class="why">Only the last term of <math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi></math> contains <math><mi>μ</mi></math>; the other terms have derivative 0. The factor <math><mo stretchy="false">(</mo><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></math> comes from the chain rule on <math><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="false">)</mo></math>.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="sn">5</span>Differentiate with respect to <math><msup><mi>σ</mi><mn>2</mn></msup></math> and set it to 0</h4>
+      <div class="eq"><math><mfrac><mrow><mo>∂</mo><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi></mrow><mrow><mo>∂</mo><mo stretchy="false">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow></mfrac><mo>=</mo><mo>−</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>4</mn></msup></mrow></mfrac><mo>=</mo><mn>0</mn></math></div>
+      <div class="eq"><math><mtext>Multiply&nbsp;by&nbsp;</mtext><mn>2</mn><msup><mi>σ</mi><mn>4</mn></msup><mo>:</mo><mspace width="2em"></mspace><mo>−</mo><mi>n</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mo>=</mo><mn>0</mn><mspace width="2em"></mspace><mo>⟹</mo><mspace width="2em"></mspace><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></math></div>
+      <p class="why">Treat <math><msup><mi>σ</mi><mn>2</mn></msup></math> as one variable. The derivative of <math><mspace width="0.12em"></mspace><mi>ln</mi><mo stretchy="false">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math> is <math><mn>1</mn><mo>/</mo><msup><mi>σ</mi><mn>2</mn></msup></math>, and the derivative of <math><mn>1</mn><mo>/</mo><mo stretchy="false">(</mo><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math> is <math><mo>−</mo><mn>1</mn><mo>/</mo><mo stretchy="false">(</mo><mn>2</mn><msup><mi>σ</mi><mn>4</mn></msup><mo stretchy="false">)</mo></math>.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="sn">6</span>Combine the two equations</h4>
+      <p class="why">The <math><msup><mi>σ</mi><mn>2</mn></msup></math> equation still contains the unknown <math><mi>μ</mi></math>. Both equations must hold at the same time, and step 4 gave <math><mover accent="true"><mi>μ</mi><mo>^</mo></mover><mo>=</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover></math>, so substitute it:</p>
+      <div class="eq res"><math><mrow class="mx"><mrow><mover accent="true"><mi>μ</mi><mo>^</mo></mover><mo>=</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover></mrow></mrow><mspace width="2em"></mspace><mtext>and</mtext><mspace width="2em"></mspace><mrow class="mx"><mrow><msup><mover accent="true"><mi>σ</mi><mo>^</mo></mover><mn>2</mn></msup><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow></mrow></math></div>
+      <p class="why">Check that it is a maximum: as a function of <math><mi>μ</mi></math>, <math><mspace width="0.12em"></mspace><mi>ln</mi><mspace width="0.17em"></mspace><mi>L</mi></math> is a downward-opening parabola (the coefficient of <math><msup><mi>μ</mi><mn>2</mn></msup></math> is <math><mo>−</mo><mfrac><mrow><mi>n</mi></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo>&lt;</mo><mn>0</mn></math>), so the point where the derivative is 0 is its peak. This is what you see in the normal lab, where <math><msup><mi>σ</mi><mn>2</mn></msup></math> is held fixed and only <math><mover accent="true"><mi>μ</mi><mo>^</mo></mover></math> varies.</p>
+    </div>
+
+    <p class="note">The MLE of <math><msup><mi>σ</mi><mn>2</mn></msup></math> divides by <math><mi>n</mi></math>, not <math><mi>n</mi><mo>−</mo><mn>1</mn></math>, so it differs slightly from the sample variance <math><msup><mi>s</mi><mn>2</mn></msup></math> and is a biased estimator of <math><msup><mi>σ</mi><mn>2</mn></msup></math>.</p>
+    <p><button class="btn" data-go="mle-binomial">Try it in the binomial lab</button></p>
+  </section>
+
+  <section id="pane-mle-binomial" class="stack pane" hidden>
+    <h2>Binomial lab: which <math><mi>p</mi></math> explains the sample best?</h2>
+    <p>Set the true success probability and the number of trials, then draw a sample. In practice we never see the true <math><mi>p</mi></math>; we only see the sample and compute <math><mi>L</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>p</mi><mrow><mi>x</mi></mrow></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>x</mi></mrow></msup></math> for different candidates.</p>
+    <div class="controls">
+      <div class="ctl"><label for="b-p">True p: <output id="b-p-out"></output></label><input type="range" id="b-p" min="0.01" max="0.99" step="0.01" value="0.30"></div>
+      <div class="ctl"><label for="b-n">Trials n: <output id="b-n-out"></output></label><input type="range" id="b-n" min="5" max="100" step="1" value="20"></div>
+      <button class="btn" id="b-draw">Draw new sample</button>
+      <label class="check"><input type="checkbox" id="b-log"> Plot ln L instead of L</label>
+    </div>
+    <div class="stack" style="gap:8px">
+      <h3>Observed sample (filled = success)</h3>
+      <div class="dots" id="b-dots"></div>
+      <div class="stat" id="b-stat"></div>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <figure>
+          <svg class="chart" id="b-chart" viewBox="0 0 640 300" role="img" aria-label="Likelihood of p"></svg>
+          <div class="legend"><span><i class="lmax"></i>p̂ = x/n (maximum)</span><span><i class="ltrue"></i>true p</span><span><i class="lcand"></i>your candidate</span></div>
+          <figcaption id="b-cap"></figcaption>
+        </figure>
+        <div class="controls">
+          <div class="ctl"><label for="b-c">Your candidate p̂: <output id="b-c-out"></output></label><input type="range" id="b-c" min="0.01" max="0.99" step="0.01" value="0.50"></div>
+        </div>
+        <div class="readout" id="b-read"></div>
+      </div>
+      <div class="stack" style="gap:8px">
+        <h3>Likelihood at candidate values</h3>
+        <div class="tblwrap"><table id="b-table"></table></div>
+        <p class="note">The highlighted row is the candidate with the largest likelihood. No other value of p can beat it for this sample.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pane-mle-normal" class="stack pane" hidden>
+    <h2>Normal lab: which <math><mi>μ</mi></math> explains the sample best?</h2>
+    <p>The default population is <math><mi>N</mi><mo stretchy="false">(</mo><mn>50</mn><mo>,</mo><mn>16</mn><mo stretchy="false">)</mo></math> with a sample of 10 observations. The variance is treated as known, and we compute <math><mi>L</mi><mo stretchy="false">(</mo><mi>μ</mi><mo stretchy="false">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></munderover><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math> for different candidates.</p>
+    <div class="controls">
+      <div class="ctl"><label for="n-mu">True μ: <output id="n-mu-out"></output></label><input type="range" id="n-mu" min="30" max="70" step="1" value="50"></div>
+      <div class="ctl"><label for="n-s2">Variance σ²: <output id="n-s2-out"></output></label><input type="range" id="n-s2" min="1" max="64" step="1" value="16"></div>
+      <div class="ctl"><label for="n-n">Sample size n: <output id="n-n-out"></output></label><input type="range" id="n-n" min="2" max="50" step="1" value="10"></div>
+      <button class="btn" id="n-draw">Draw new sample</button>
+      <label class="check"><input type="checkbox" id="n-log"> Plot ln L instead of L</label>
+    </div>
+    <div class="stack" style="gap:8px">
+      <h3>Observed sample</h3>
+      <div class="sample" id="n-sample"></div>
+      <div class="stat" id="n-stat"></div>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <figure>
+          <svg class="chart" id="n-dens" viewBox="0 0 640 240" role="img" aria-label="Candidate density over the data"></svg>
+          <figcaption>Candidate density <math><mi>N</mi><mo stretchy="false">(</mo><mover accent="true"><mi>μ</mi><mo>^</mo></mover><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></math> over the data. Each stem is <math><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mover accent="true"><mi>μ</mi><mo>^</mo></mover><mo stretchy="false">)</mo></math>. The likelihood is the product of the stem heights, so it is large when the curve sits over the data.</figcaption>
+        </figure>
+        <div class="controls">
+          <div class="ctl"><label for="n-c">Your candidate μ̂: <output id="n-c-out"></output></label><input type="range" id="n-c" min="45" max="55" step="0.01" value="50"></div>
+          <button class="btn ghost" id="n-snap">Jump to x̄</button>
+        </div>
+        <div class="readout" id="n-read"></div>
+        <figure>
+          <svg class="chart" id="n-chart" viewBox="0 0 640 300" role="img" aria-label="Likelihood of mu"></svg>
+          <div class="legend"><span><i class="lmax"></i>μ̂ = x̄ (maximum)</span><span><i class="ltrue"></i>true μ</span><span><i class="lcand"></i>your candidate</span></div>
+          <figcaption id="n-cap"></figcaption>
+        </figure>
+      </div>
+      <div class="stack" style="gap:8px">
+        <h3>Likelihood at candidate values</h3>
+        <div class="tblwrap"><table id="n-table"></table></div>
+        <p class="note">The highlighted row is the sample mean. Every other μ̂ gives a smaller likelihood for this sample.</p>
+      </div>
+    </div>
+  </section>
+  </div>
+  </main>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sci(v,d){
+  d=d==null?3:d;
+  if(!isFinite(v))return '−∞'; if(v===0)return '0';
+  const a=Math.abs(v);
+  if(a>=0.001&&a<1e5)return String(+v.toPrecision(d+1));
+  let e=Math.floor(Math.log10(a)),m=v/Math.pow(10,e);
+  if(Math.abs(m)>=10-0.5*Math.pow(10,-d)){m/=10;e++;}
+  return m.toFixed(d)+' × 10'+String(e).split('').map(c=>SUP[c]).join('');
+}
+function lnf(v,d){return isFinite(v)?v.toFixed(d==null?3:d).replace('-','−'):'−∞';}
+function pct(r){return r>=0.9995&&r<1?'99.9%':(r*100).toFixed(r<0.1?2:1)+'%';}
+
+/* ---------- navigation ---------- */
+const SECS={os:['contents','intro','dist','pct'],mle:['contents','intro','binomial','normal']};
+function show(sec,tab){
+  if(!SECS[sec])sec='os';
+  if(SECS[sec].indexOf(tab)<0)tab='contents';
+  Object.keys(SECS).forEach(s=>{
+    $('sec-'+s).hidden=s!==sec;
+    SECS[s].forEach(t=>{$('pane-'+s+'-'+t).hidden=!(s===sec&&t===tab);});
+  });
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.go===sec+'-'+tab?'true':'false'));
+  document.querySelectorAll('.side button').forEach(b=>b.setAttribute('aria-current',b.dataset.go.split('-')[0]===sec?'page':'false'));
+  try{history.replaceState(null,'','#'+sec+'-'+tab);}catch(e){}
+}
+function route(){const h=(location.hash||'').slice(1).split('-');show(h[0]||'os',h[1]||'contents');}
+document.addEventListener('click',ev=>{
+  const a=ev.target.closest('[data-go]');if(!a)return;
+  ev.preventDefault();const p=a.dataset.go.split('-');show(p[0],p[1]);window.scrollTo(0,0);
+});
+
+/* ---------- generic likelihood plot ---------- */
+function plot(svg,o){
+  const W=640,H=300,L=88,R=16,T=14,B=42,N=240;
+  const ys=[];for(let i=0;i<=N;i++)ys.push(o.fn(o.x0+(o.x1-o.x0)*i/N));
+  const fin=ys.filter(isFinite);
+  let ymax=Math.max.apply(null,fin),ymin=o.log?Math.max(Math.min.apply(null,fin),ymax-o.span):0;
+  if(o.log)ymax+=(ymax-ymin)*0.06;else ymax*=1.08;
+  if(!(ymax>ymin))ymax=ymin+1;
+  const X=x=>L+(x-o.x0)/(o.x1-o.x0)*(W-L-R);
+  const Y=y=>{if(!isFinite(y)||y<ymin)y=ymin;return H-B-(y-ymin)/(ymax-ymin)*(H-T-B);};
+  let s='';
+  for(let i=0;i<=4;i++){
+    const yv=ymin+(ymax-ymin)*i/4,y=Y(yv).toFixed(1);
+    s+='<line class="gridl" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/>';
+    s+='<text class="tick" x="'+(L-8)+'" y="'+(+y+4)+'" text-anchor="end">'+(o.log?lnf(yv,1):sci(yv,2))+'</text>';
+  }
+  for(let i=0;i<=5;i++){
+    const xv=o.x0+(o.x1-o.x0)*i/5;
+    s+='<text class="tick" x="'+X(xv).toFixed(1)+'" y="'+(H-B+16)+'" text-anchor="middle">'+xv.toFixed(o.dec)+'</text>';
+  }
+  s+='<text class="axl" x="'+((L+W-R)/2)+'" y="'+(H-6)+'" text-anchor="middle">'+o.xlabel+'</text>';
+  let d='';
+  for(let i=0;i<=N;i++){d+=(i?'L':'M')+X(o.x0+(o.x1-o.x0)*i/N).toFixed(1)+' '+Y(ys[i]).toFixed(1);}
+  if(!o.log)s+='<path class="area" d="'+d+'L'+X(o.x1)+' '+Y(ymin)+'L'+X(o.x0)+' '+Y(ymin)+'Z"/>';
+  s+='<path class="curve" d="'+d+'"/>';
+  o.marks.forEach(m=>{
+    if(m.x<o.x0||m.x>o.x1)return;
+    const x=X(m.x).toFixed(1),y=Y(o.fn(m.x)).toFixed(1);
+    s+='<line class="'+m.cls+'" x1="'+x+'" x2="'+x+'" y1="'+Y(ymin)+'" y2="'+y+'"/>';
+    s+='<circle class="'+m.cls+'" cx="'+x+'" cy="'+y+'" r="'+(m.cls==='max'?7:5)+'"/>';
+  });
+  svg.innerHTML=s;
+}
+
+/* ---------- binomial ---------- */
+const bin={p:0.3,n:20,x:0,s:[],c:0.5};
+function lnB(p){
+  const x=bin.x,n=bin.n;
+  if(p<=0)return x===0?0:-Infinity;
+  if(p>=1)return x===n?0:-Infinity;
+  return x*Math.log(p)+(n-x)*Math.log(1-p);
+}
+function drawB(){
+  bin.s=[];bin.x=0;
+  for(let i=0;i<bin.n;i++){const v=Math.random()<bin.p?1:0;bin.s.push(v);bin.x+=v;}
+  renderB();
+}
+function renderB(){
+  const ph=bin.x/bin.n,lmax=lnB(ph),log=$('b-log').checked;
+  $('b-p-out').textContent=bin.p.toFixed(2);$('b-n-out').textContent=bin.n;$('b-c-out').textContent=bin.c.toFixed(2);
+  $('b-dots').innerHTML=bin.s.map(v=>'<span'+(v?' class="s"':'')+'></span>').join('');
+  $('b-stat').innerHTML='Successes <b>x = '+bin.x+'</b> in <b>n = '+bin.n+'</b> trials. Sample proportion <span class="mxinline">p̂ = '+bin.x+'/'+bin.n+' = '+ph.toFixed(4)+'</span> (true p = '+bin.p.toFixed(2)+').';
+  const rows=[];let has=false;
+  for(let k=1;k<=9;k++){const p=k/10,m=Math.abs(p-ph)<1e-9;if(m)has=true;rows.push({v:p,label:p.toFixed(1),ln:lnB(p),max:m});}
+  if(!has)rows.push({v:ph,label:'p̂ = '+ph.toFixed(4),ln:lmax,max:true});
+  rows.sort((a,b)=>a.v-b.v);
+  tableRel($('b-table'),'Candidate p',rows,lmax);
+  plot($('b-chart'),{x0:0,x1:1,dec:1,log:log,span:25,xlabel:'candidate p',fn:p=>log?lnB(p):Math.exp(lnB(p)),
+    marks:[{x:bin.p,cls:'true'},{x:bin.c,cls:'cand'},{x:ph,cls:'max'}]});
+  $('b-cap').innerHTML=(log?'ln L(p)':'L(p)')+' for this sample. The peak is at p̂ = '+ph.toFixed(4)+', where L = <b>'+sci(Math.exp(lmax))+'</b>.';
+  const lc=lnB(bin.c);
+  $('b-read').innerHTML='L('+bin.c.toFixed(2)+') = <b>'+sci(Math.exp(lc))+'</b>, ln L = <b>'+lnf(lc)+'</b>. That is <b>'+pct(Math.exp(lc-lmax))+'</b> of the maximum L(p̂) = <b>'+sci(Math.exp(lmax))+'</b>.';
+}
+function tableRel(el,head,rows,lmax){
+  let h='<thead><tr><th>'+head+'</th><th>L</th><th>ln L</th><th>L / max</th><th></th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    const rel=Math.exp(r.ln-lmax);
+    h+='<tr'+(r.max?' class="max"':'')+'><td>'+r.label+(r.max?'<span class="tag">max</span>':'')+'</td><td>'+sci(Math.exp(r.ln))+'</td><td>'+lnf(r.ln)+'</td><td>'+pct(rel)+'</td><td class="bar"><span style="width:'+(rel*100).toFixed(1)+'%"></span></td></tr>';
+  });
+  el.innerHTML=h+'</tbody>';
+}
+$('b-p').addEventListener('input',e=>{bin.p=+e.target.value;drawB();});
+$('b-n').addEventListener('input',e=>{bin.n=+e.target.value;drawB();});
+$('b-c').addEventListener('input',e=>{bin.c=+e.target.value;renderB();});
+$('b-draw').addEventListener('click',drawB);
+$('b-log').addEventListener('change',renderB);
+
+/* ---------- normal ---------- */
+const nor={mu:50,s2:16,n:10,d:[],c:50,xb:50,lo:45,hi:55};
+function rnorm(){let u=0,v=0;while(u===0)u=Math.random();v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function lnN(mu){
+  let ss=0;for(let i=0;i<nor.n;i++){const e=nor.d[i]-mu;ss+=e*e;}
+  return -(nor.n/2)*Math.log(2*Math.PI*nor.s2)-ss/(2*nor.s2);
+}
+function drawN(){
+  const s=Math.sqrt(nor.s2);nor.d=[];let sum=0;
+  for(let i=0;i<nor.n;i++){const v=nor.mu+s*rnorm();nor.d.push(v);sum+=v;}
+  nor.xb=sum/nor.n;
+  const se=s/Math.sqrt(nor.n);
+  nor.lo=nor.xb-5*se;nor.hi=nor.xb+5*se;
+  const c=$('n-c');c.min=nor.lo.toFixed(2);c.max=nor.hi.toFixed(2);
+  nor.c=Math.min(nor.hi,Math.max(nor.lo,nor.mu));c.value=nor.c.toFixed(2);
+  renderN();
+}
+function plotDens(svg){
+  const W=640,H=240,L=88,R=16,T=14,B=42,N=200,s=Math.sqrt(nor.s2),mu=nor.c;
+  const x0=Math.min(Math.min.apply(null,nor.d),nor.lo)-2*s,x1=Math.max(Math.max.apply(null,nor.d),nor.hi)+2*s;
+  const f=x=>Math.exp(-(x-mu)*(x-mu)/(2*nor.s2))/(s*Math.sqrt(2*Math.PI));
+  const ymax=1.12/(s*Math.sqrt(2*Math.PI));
+  const X=x=>L+(x-x0)/(x1-x0)*(W-L-R),Y=y=>H-B-y/ymax*(H-T-B);
+  let o='';
+  for(let i=0;i<=3;i++){const yv=ymax*i/3,y=Y(yv).toFixed(1);
+    o+='<line class="gridl" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text class="tick" x="'+(L-8)+'" y="'+(+y+4)+'" text-anchor="end">'+yv.toFixed(3)+'</text>';}
+  for(let i=0;i<=5;i++){const xv=x0+(x1-x0)*i/5;o+='<text class="tick" x="'+X(xv).toFixed(1)+'" y="'+(H-B+16)+'" text-anchor="middle">'+xv.toFixed(1)+'</text>';}
+  o+='<text class="axl" x="'+((L+W-R)/2)+'" y="'+(H-6)+'" text-anchor="middle">x</text>';
+  let d='';for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N;d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1);}
+  o+='<path class="dens" d="'+d+'"/>';
+  nor.d.forEach(v=>{const x=X(v).toFixed(1);
+    o+='<line class="stem" x1="'+x+'" x2="'+x+'" y1="'+Y(0)+'" y2="'+Y(f(v)).toFixed(1)+'"/><circle class="cand" cx="'+x+'" cy="'+Y(f(v)).toFixed(1)+'" r="3.5"/><circle class="pt" cx="'+x+'" cy="'+Y(0)+'" r="4"/>';});
+  svg.innerHTML=o;
+}
+function renderN(){
+  const s=Math.sqrt(nor.s2),se=s/Math.sqrt(nor.n),xb=nor.xb,lmax=lnN(xb),log=$('n-log').checked;
+  $('n-mu-out').textContent=nor.mu;$('n-s2-out').textContent=nor.s2;$('n-n-out').textContent=nor.n;$('n-c-out').textContent=nor.c.toFixed(2);
+  $('n-sample').innerHTML=nor.d.map(v=>'<span>'+v.toFixed(2)+'</span>').join('');
+  let ss=0;nor.d.forEach(v=>{ss+=(v-xb)*(v-xb);});
+  $('n-stat').innerHTML='Sample mean <span class="mxinline">μ̂ = x̄ = '+xb.toFixed(4)+'</span> (true μ = '+nor.mu+'). If σ² were also unknown, its MLE would be σ̂² = <b>'+(ss/nor.n).toFixed(3)+'</b> (true σ² = '+nor.s2+', s² = '+(ss/(nor.n-1)).toFixed(3)+').';
+  const st=se<0.75?0.5:se<1.5?1:se<3?2:5,ctr=Math.round(xb/st)*st,rows=[];let has=false;
+  for(let k=-4;k<=4;k++){const m=ctr+k*st,mx=Math.abs(m-xb)<1e-9;if(mx)has=true;rows.push({v:m,label:m.toFixed(st<1?1:0),ln:lnN(m),max:mx});}
+  if(!has)rows.push({v:xb,label:'x̄ = '+xb.toFixed(4),ln:lmax,max:true});
+  rows.sort((a,b)=>a.v-b.v);
+  tableRel($('n-table'),'Candidate μ',rows,lmax);
+  plotDens($('n-dens'));
+  plot($('n-chart'),{x0:nor.lo,x1:nor.hi,dec:1,log:log,span:1e9,xlabel:'candidate μ',fn:m=>log?lnN(m):Math.exp(lnN(m)),
+    marks:[{x:nor.mu,cls:'true'},{x:nor.c,cls:'cand'},{x:xb,cls:'max'}]});
+  $('n-cap').innerHTML=(log?'ln L(μ)':'L(μ)')+' for this sample. The peak is at μ̂ = x̄ = '+xb.toFixed(4)+', where L = <b>'+sci(Math.exp(lmax))+'</b>.';
+  const lc=lnN(nor.c);
+  $('n-read').innerHTML='L('+nor.c.toFixed(2)+') = <b>'+sci(Math.exp(lc))+'</b>, ln L = <b>'+lnf(lc)+'</b>. That is <b>'+pct(Math.exp(lc-lmax))+'</b> of the maximum L(x̄) = <b>'+sci(Math.exp(lmax))+'</b>.';
+}
+$('n-mu').addEventListener('input',e=>{nor.mu=+e.target.value;drawN();});
+$('n-s2').addEventListener('input',e=>{nor.s2=+e.target.value;drawN();});
+$('n-n').addEventListener('input',e=>{nor.n=+e.target.value;drawN();});
+$('n-c').addEventListener('input',e=>{nor.c=+e.target.value;renderN();});
+$('n-snap').addEventListener('click',()=>{nor.c=nor.xb;$('n-c').value=nor.xb.toFixed(2);renderN();});
+$('n-draw').addEventListener('click',drawN);
+$('n-log').addEventListener('change',renderN);
+
+/* ---------- section 6.3: order statistics ---------- */
+const TWO_PI=2*Math.PI;
+function lgam(x){
+  const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5)return Math.log(Math.PI/Math.sin(Math.PI*x))-lgam(1-x);
+  x-=1;let a=c[0];const t=x+7.5;
+  for(let i=1;i<9;i++)a+=c[i]/(x+i);
+  return 0.5*Math.log(TWO_PI)+(x+0.5)*Math.log(t)-t+Math.log(a);
+}
+function lchoose(n,k){return lgam(n+1)-lgam(k+1)-lgam(n-k+1);}
+function choose(n,k){return Math.round(Math.exp(lchoose(n,k)));}
+function bpmf(n,k,p){
+  if(p<=0)return k===0?1:0;
+  if(p>=1)return k===n?1:0;
+  return Math.exp(lchoose(n,k)+k*Math.log(p)+(n-k)*Math.log(1-p));
+}
+function erf(x){
+  const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return s*y;
+}
+const Phi=z=>0.5*(1+erf(z/Math.SQRT2));
+function phiInv(p){let lo=-8,hi=8;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(Phi(m)<p)lo=m;else hi=m;}return (lo+hi)/2;}
+const DIST={
+  uniform:{lo:0,hi:1,f:y=>(y>=0&&y<=1)?1:0,F:y=>y<=0?0:(y>=1?1:y),q:p=>p,rs:()=>Math.random()},
+  exp:{lo:0,hi:7,f:y=>y<0?0:Math.exp(-y),F:y=>y<0?0:1-Math.exp(-y),q:p=>-Math.log(1-p),rs:()=>-Math.log(1-Math.random())},
+  normal:{lo:34,hi:66,f:y=>Math.exp(-(y-50)*(y-50)/32)/(4*Math.sqrt(TWO_PI)),F:y=>Phi((y-50)/4),q:p=>50+4*phiInv(p),rs:()=>50+4*rnorm()}
+};
+const SUBD='₀₁₂₃₄₅₆₇₈₉';
+const subs=n=>String(n).split('').map(c=>SUBD[+c]).join('');
+function gr(D,n,r,y){
+  const f=D.f(y);if(f<=0)return 0;
+  const F=D.F(y),c=Math.exp(lgam(n+1)-lgam(r)-lgam(n-r+1));
+  return c*Math.pow(F,r-1)*Math.pow(1-F,n-r)*f;
+}
+function Gr(D,n,r,y){const F=D.F(y);let s=0;for(let k=r;k<=n;k++)s+=bpmf(n,k,F);return Math.min(1,s);}
+function axes(o){
+  const X=x=>o.L+(x-o.x0)/(o.x1-o.x0)*(o.W-o.L-o.R);
+  const Y=y=>o.H-o.B-(y-o.y0)/(o.y1-o.y0)*(o.H-o.T-o.B);
+  let s='';
+  for(let i=0;i<=o.yt;i++){
+    const v=o.y0+(o.y1-o.y0)*i/o.yt,y=Y(v).toFixed(1);
+    s+='<line class="gridl" x1="'+o.L+'" x2="'+(o.W-o.R)+'" y1="'+y+'" y2="'+y+'"/><text class="tick" x="'+(o.L-8)+'" y="'+(+y+4)+'" text-anchor="end">'+v.toFixed(o.ydec)+'</text>';
+  }
+  if(o.xt>=0)for(let i=0;i<=o.xt;i++){
+    const v=o.x0+(o.x1-o.x0)*i/o.xt;
+    s+='<text class="tick" x="'+X(v).toFixed(1)+'" y="'+(o.H-o.B+16)+'" text-anchor="middle">'+v.toFixed(o.xdec)+'</text>';
+  }
+  if(o.xlabel)s+='<text class="axl" x="'+((o.L+o.W-o.R)/2)+'" y="'+(o.H-6)+'" text-anchor="middle">'+o.xlabel+'</text>';
+  return {s:s,X:X,Y:Y};
+}
+function strip(svg,D,data,marks,span){
+  const W=640,L=24,R=24,ay=64,X=v=>L+(Math.min(D.hi,Math.max(D.lo,v))-D.lo)/(D.hi-D.lo)*(W-L-R);
+  let s='';
+  if(span)s+='<rect class="span" x="'+X(span[0]).toFixed(1)+'" y="'+(ay-22)+'" width="'+Math.max(2,X(span[1])-X(span[0])).toFixed(1)+'" height="44"/>';
+  s+='<line class="axisl" x1="'+L+'" x2="'+(W-R)+'" y1="'+ay+'" y2="'+ay+'"/>';
+  const dec=D.hi-D.lo>=20?0:(D.hi-D.lo>=5?1:2);
+  for(let i=0;i<=5;i++){const v=D.lo+(D.hi-D.lo)*i/5;s+='<text class="tick" x="'+X(v).toFixed(1)+'" y="'+(ay+34)+'" text-anchor="middle">'+v.toFixed(dec)+'</text>';}
+  data.forEach(v=>{s+='<circle class="pt" style="opacity:.55" cx="'+X(v).toFixed(1)+'" cy="'+ay+'" r="4.5"/>';});
+  (marks||[]).forEach(m=>{
+    const x=X(m.v).toFixed(1);
+    if(m.line)s+='<line class="'+m.cls+'" x1="'+x+'" x2="'+x+'" y1="'+(ay-34)+'" y2="'+(ay+22)+'"/>';
+    if(m.dot)s+='<circle class="'+m.cls+'" cx="'+x+'" cy="'+ay+'" r="8"/>';
+    if(m.label)s+='<text class="'+(m.dim?'lblm':'lbl')+'" x="'+x+'" y="'+(ay-(m.dot?16:38))+'" text-anchor="middle">'+m.label+'</text>';
+  });
+  svg.innerHTML=s;
+}
+
+/* ----- Lab 1 ----- */
+const o1={dist:'uniform',n:9,r:5,N:2000,sims:null,sample:[],y:0.5,t:null,fresh:true};
+function o1sim(){
+  const D=DIST[o1.dist],n=o1.n,r=o1.r,N=o1.N,sims=new Float64Array(N);let last=null;
+  for(let t=0;t<N;t++){const a=new Float64Array(n);for(let k=0;k<n;k++)a[k]=D.rs();a.sort();sims[t]=a[r-1];last=a;}
+  o1.sims=sims;o1.sample=Array.from(last);
+}
+function o1theory(){
+  const D=DIST[o1.dist],n=o1.n,r=o1.r,M=2000,h=(D.hi-D.lo)/M;
+  let m1=0,m2=0;
+  for(let k=0;k<=M;k++){const y=D.lo+k*h,w=(k===0||k===M)?0.5:1,g=gr(D,n,r,y);m1+=w*g*y*h;m2+=w*g*y*y*h;}
+  let ya=null,yb=D.lo;
+  for(let k=0;k<=400;k++){const y=D.lo+(D.hi-D.lo)*k/400,G=Gr(D,n,r,y);if(ya===null&&G>=0.0005)ya=y;if(G<=0.9995)yb=y;}
+  if(ya===null)ya=D.lo;
+  const w=Math.max(yb-ya,(D.hi-D.lo)/50);
+  return {mean:m1,vr:m2-m1*m1,x0:Math.max(D.lo,ya-0.08*w),x1:Math.min(D.hi,yb+0.08*w+(D.hi-D.lo)/400)};
+}
+function o1render(){
+  const D=DIST[o1.dist],n=o1.n,r=o1.r,N=o1.N,t=o1theory();
+  o1.t=t;
+  $('o1-n-out').textContent=n;$('o1-r-out').textContent=r;
+  const ys=$('o1-y');ys.min=t.x0.toFixed(4);ys.max=t.x1.toFixed(4);ys.step=((t.x1-t.x0)/400).toFixed(5);
+  if(o1.fresh){o1.y=t.mean;o1.fresh=false;}
+  o1.y=Math.min(t.x1,Math.max(t.x0,o1.y));ys.value=o1.y;
+  const dec=t.x1-t.x0>=20?1:(t.x1-t.x0>=2?2:3);
+  $('o1-y-out').textContent=o1.y.toFixed(dec+1);
+  /* strip */
+  const marks=[{v:o1.sample[r-1],cls:'max',dot:true,label:'Y'+subs(r)}];
+  if(r!==1)marks.push({v:o1.sample[0],cls:'x',label:'Y'+subs(1),dim:true});
+  if(r!==n)marks.push({v:o1.sample[n-1],cls:'x',label:'Y'+subs(n),dim:true});
+  strip($('o1-strip'),D,o1.sample,marks,null);
+  /* histogram */
+  const B=30,bw=(t.x1-t.x0)/B,cnt=new Array(B).fill(0);
+  for(let k=0;k<N;k++){const s=o1.sims[k];if(s>=t.x0&&s<t.x1)cnt[Math.min(B-1,Math.floor((s-t.x0)/bw))]++;}
+  const dens=cnt.map(c=>c/(N*bw));
+  const cur=[],G=240;let cmax=0;
+  for(let k=0;k<=G;k++){const y=t.x0+(t.x1-t.x0)*k/G,g=gr(D,n,r,y);cur.push([y,g]);if(g>cmax)cmax=g;}
+  const ymax=1.12*Math.max(cmax,Math.max.apply(null,dens));
+  const A=axes({W:640,H:300,L:62,R:16,T:14,B:42,x0:t.x0,x1:t.x1,y0:0,y1:ymax,xt:5,yt:4,xdec:dec,ydec:ymax<10?2:1,xlabel:'y'});
+  let s=A.s;
+  dens.forEach((d,k)=>{const x=A.X(t.x0+k*bw),w=A.X(t.x0+(k+1)*bw)-x;
+    s+='<rect class="bar" x="'+x.toFixed(1)+'" y="'+A.Y(d).toFixed(1)+'" width="'+Math.max(0.5,w-1).toFixed(1)+'" height="'+(A.Y(0)-A.Y(d)).toFixed(1)+'"/>';});
+  let pd='';cur.forEach((c,k)=>{pd+=(k?'L':'M')+A.X(c[0]).toFixed(1)+' '+A.Y(Math.min(D.f(c[0]),ymax)).toFixed(1);});
+  s+='<path class="popf" d="'+pd+'"/>';
+  let td='';cur.forEach((c,k)=>{td+=(k?'L':'M')+A.X(c[0]).toFixed(1)+' '+A.Y(c[1]).toFixed(1);});
+  s+='<path class="theory" d="'+td+'"/>';
+  const mx=A.X(t.mean).toFixed(1);
+  s+='<line class="true" x1="'+mx+'" x2="'+mx+'" y1="'+A.Y(0)+'" y2="'+A.Y(ymax)+'"/>';
+  const gy=gr(D,n,r,o1.y),ex=A.X(o1.y).toFixed(1);
+  s+='<line class="cand" x1="'+ex+'" x2="'+ex+'" y1="'+A.Y(0)+'" y2="'+A.Y(Math.min(gy,ymax)).toFixed(1)+'"/><circle class="cand" cx="'+ex+'" cy="'+A.Y(Math.min(gy,ymax)).toFixed(1)+'" r="6"/>';
+  $('o1-hist').innerHTML=s;
+  let sm=0,sv=0;for(let k=0;k<N;k++)sm+=o1.sims[k];sm/=N;for(let k=0;k<N;k++){const d=o1.sims[k]-sm;sv+=d*d;}sv/=N;
+  $('o1-cap').innerHTML='Histogram of '+N+' simulated values of Y'+subs(r)+' (n = '+n+', r = '+r+') against the formula.';
+  let extra='';
+  if(o1.dist==='uniform')extra=' For the uniform case r/(n+1) = <b>'+(r/(n+1)).toFixed(4)+'</b>.';
+  $('o1-stat').innerHTML='Simulated mean <b>'+sm.toFixed(4)+'</b>, formula E(Y'+subs(r)+') = <b>'+t.mean.toFixed(4)+'</b>. Simulated variance <b>'+sv.toFixed(4)+'</b>, formula <b>'+t.vr.toFixed(4)+'</b>.'+extra;
+  /* table */
+  const F=D.F(o1.y),f=D.f(o1.y),coef=Math.exp(lgam(n+1)-lgam(r)-lgam(n-r+1));
+  const Gt=Gr(D,n,r,o1.y);let below=0;for(let k=0;k<N;k++)if(o1.sims[k]<=o1.y)below++;
+  const L=(a,b,mx)=>'<tr'+(mx?' class="max"':'')+'><td style="text-align:left">'+a+'</td><td>'+b+'</td></tr>';
+  $('o1-table').innerHTML='<thead><tr><th style="text-align:left">Quantity</th><th>Value</th></tr></thead><tbody>'+
+    L('F(y)',F.toFixed(5))+
+    L('F(y)<sup>r−1</sup>',sci(Math.pow(F,r-1)))+
+    L('[1 − F(y)]<sup>n−r</sup>',sci(Math.pow(1-F,n-r)))+
+    L('f(y)',f.toFixed(5))+
+    L('n! / [(r−1)!(n−r)!]',sci(coef))+
+    L('g<sub>r</sub>(y) = product of the four above',sci(gy),true)+
+    L('P(Y<sub>r</sub> ≤ y), binomial sum',Gt.toFixed(5))+
+    L('Simulated fraction ≤ y',(below/N).toFixed(5))+'</tbody>';
+}
+function o1set(){
+  const rs=$('o1-r');rs.max=o1.n;
+  if(o1.r>o1.n)o1.r=o1.n;rs.value=o1.r;
+}
+function o1resim(){o1.fresh=true;o1sim();o1render();}
+
+/* ----- Lab 2 ----- */
+const o2={dist:'normal',n:9,p:0.5,i:3,j:7,g:0.95,sample:[],cov:null};
+function o2cover(){let c=0;for(let k=o2.i;k<=o2.j-1;k++)c+=bpmf(o2.n,k,o2.p);return c;}
+function o2gen(){const D=DIST[o2.dist],a=new Float64Array(o2.n);for(let k=0;k<o2.n;k++)a[k]=D.rs();a.sort();return a;}
+function o2draw(){o2.sample=Array.from(o2gen());}
+function o2run(){
+  const D=DIST[o2.dist],pi=D.q(o2.p),ints=[];let hit=0,last=null;
+  for(let t=0;t<1000;t++){
+    const a=o2gen(),lo=a[o2.i-1],hi=a[o2.j-1],ok=lo<pi&&pi<hi;
+    if(ok)hit++;if(t<40)ints.push({lo:lo,hi:hi,ok:ok});last=a;
+  }
+  o2.cov={hit:hit,N:1000,ints:ints,pi:pi};o2.sample=Array.from(last);
+}
+function o2limits(){
+  const is=$('o2-i'),js=$('o2-j');
+  is.max=o2.n-1;js.max=o2.n;
+  if(o2.i>o2.n-1)o2.i=o2.n-1;
+  if(o2.j>o2.n)o2.j=o2.n;
+  if(o2.j<=o2.i)o2.j=Math.min(o2.n,o2.i+1);
+  if(o2.i>=o2.j)o2.i=o2.j-1;
+  is.value=o2.i;js.value=o2.j;
+}
+function o2render(){
+  const D=DIST[o2.dist],n=o2.n,p=o2.p,i=o2.i,j=o2.j,pi=D.q(p),cov=o2cover(),y=o2.sample;
+  $('o2-n-out').textContent=n;$('o2-p-out').textContent=p.toFixed(2);$('o2-i-out').textContent=i;$('o2-j-out').textContent=j;
+  const ok=y[i-1]<pi&&pi<y[j-1];
+  const marks=[{v:pi,cls:'true',line:true,label:'π'+'ₚ'},{v:y[i-1],cls:'max',dot:true,label:'Y'+subs(i)},{v:y[j-1],cls:'max',dot:true,label:'Y'+subs(j)}];
+  const q=(n+1)*p,r0=Math.floor(q+1e-9);let pt='';
+  if(r0>=1&&r0<n){const est=y[r0-1]+(q-r0)*(y[r0]-y[r0-1]);marks.push({v:est,cls:'cand',line:true});
+    pt='(n + 1)p = '+(n+1)+' × '+p.toFixed(2)+' = <b>'+q.toFixed(2)+'</b>, so r = '+r0+' and the sample percentile is Y'+subs(r0)+' + '+(q-r0).toFixed(2)+'(Y'+subs(r0+1)+' − Y'+subs(r0)+') = <b>'+est.toFixed(3)+'</b> (true π = '+pi.toFixed(3)+').';}
+  else pt='(n + 1)p = '+q.toFixed(2)+' is outside 1 … n−1, so the interpolated sample percentile is not defined for this n and p. True π = '+pi.toFixed(3)+'.';
+  strip($('o2-strip'),D,y,marks,[y[i-1],y[j-1]]);
+  $('o2-stat').innerHTML=pt+' Interval (Y'+subs(i)+', Y'+subs(j)+') = (<b>'+y[i-1].toFixed(3)+'</b>, <b>'+y[j-1].toFixed(3)+'</b>) <span class="badge '+(ok?'ok':'no')+'">'+(ok?'covers π':'misses π')+'</span>';
+  /* pmf chart */
+  const pm=[];let pmax=0;for(let k=0;k<=n;k++){const v=bpmf(n,k,p);pm.push(v);if(v>pmax)pmax=v;}
+  const A=axes({W:640,H:250,L:62,R:16,T:14,B:40,x0:-0.5,x1:n+0.5,y0:0,y1:pmax*1.12,xt:-1,yt:4,ydec:3});
+  let s=A.s;const bw=A.X(1)-A.X(0),step=Math.ceil((n+1)/14);
+  pm.forEach((v,k)=>{const hl=k>=i&&k<=j-1,x=A.X(k)-bw/2+1;
+    s+='<rect class="'+(hl?'barhl':'bar')+'" x="'+x.toFixed(1)+'" y="'+A.Y(v).toFixed(1)+'" width="'+Math.max(1,bw-2).toFixed(1)+'" height="'+(A.Y(0)-A.Y(v)).toFixed(1)+'"/>';
+    if(k%step===0||k===n)s+='<text class="tick" x="'+A.X(k).toFixed(1)+'" y="'+(250-40+16)+'" text-anchor="middle">'+k+'</text>';});
+  s+='<text class="axl" x="'+((62+640-16)/2)+'" y="244" text-anchor="middle">k = number of observations below π</text>';
+  $('o2-pmf').innerHTML=s;
+  /* table */
+  let h='<thead><tr><th>k</th><th>C(n, k)</th><th>p<sup>k</sup>(1−p)<sup>n−k</sup></th><th>Product</th></tr></thead><tbody>';
+  for(let k=i;k<=j-1;k++)h+='<tr><td>'+k+'</td><td>'+sci(choose(n,k))+'</td><td>'+sci(Math.pow(p,k)*Math.pow(1-p,n-k))+'</td><td>'+sci(bpmf(n,k,p))+'</td></tr>';
+  h+='<tr class="max"><td colspan="3" style="text-align:left">Σ from k = '+i+' to '+(j-1)+'<span class="tag">level</span></td><td>'+cov.toFixed(4)+'</td></tr>';
+  h+='<tr><td colspan="3" style="text-align:left">Probability of missing π</td><td>'+(1-cov).toFixed(4)+'</td></tr></tbody>';
+  $('o2-table').innerHTML=h;
+  /* coverage chart */
+  const c=o2.cov,W=640,H=280,L=24,R=24,X=v=>L+(Math.min(D.hi,Math.max(D.lo,v))-D.lo)/(D.hi-D.lo)*(W-L-R);
+  let cs='';const dec=D.hi-D.lo>=20?0:(D.hi-D.lo>=5?1:2);
+  for(let k=0;k<=5;k++){const v=D.lo+(D.hi-D.lo)*k/5;cs+='<text class="tick" x="'+X(v).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+v.toFixed(dec)+'</text>';}
+  if(c){
+    c.ints.forEach((t,k)=>{const yy=14+k*6;cs+='<line class="'+(t.ok?'covok':'covno')+'" x1="'+X(t.lo).toFixed(1)+'" x2="'+X(t.hi).toFixed(1)+'" y1="'+yy+'" y2="'+yy+'"/>';});
+    const tx=X(c.pi).toFixed(1);cs+='<line class="true" x1="'+tx+'" x2="'+tx+'" y1="4" y2="'+(H-24)+'"/>';
+    $('o2-covstat').innerHTML='In <b>'+c.N+'</b> simulated samples the interval covered π in <b>'+c.hit+'</b> ('+(100*c.hit/c.N).toFixed(1)+'%). The formula gives <b>'+(100*cov).toFixed(1)+'%</b>.';
+  }else{
+    $('o2-covstat').innerHTML='Press <b>Run 1000 samples</b> to compare with the formula.';
+  }
+  $('o2-cover').innerHTML=cs;
+}
+function o2changed(){o2.cov=null;o2limits();o2draw();o2run();o2render();}
+
+function initOS(){
+  /* lab 1 */
+  $('o1-dist').addEventListener('change',e=>{o1.dist=e.target.value;o1resim();});
+  $('o1-n').addEventListener('input',e=>{o1.n=+e.target.value;o1set();o1resim();});
+  $('o1-r').addEventListener('input',e=>{o1.r=+e.target.value;o1resim();});
+  $('o1-N').addEventListener('change',e=>{o1.N=+e.target.value;o1resim();});
+  $('o1-draw').addEventListener('click',()=>{o1sim();o1render();});
+  $('o1-y').addEventListener('input',e=>{o1.y=+e.target.value;o1render();});
+  $('o1-min').addEventListener('click',()=>{o1.r=1;o1set();o1resim();});
+  $('o1-max').addEventListener('click',()=>{o1.r=o1.n;o1set();o1resim();});
+  $('o1-mid').addEventListener('click',()=>{o1.r=Math.ceil((o1.n+1)/2);o1set();o1resim();});
+  o1set();o1resim();
+  /* lab 2 */
+  $('o2-dist').addEventListener('change',e=>{o2.dist=e.target.value;o2changed();});
+  $('o2-n').addEventListener('input',e=>{o2.n=+e.target.value;o2changed();});
+  $('o2-p').addEventListener('input',e=>{o2.p=+e.target.value;o2changed();});
+  $('o2-i').addEventListener('input',e=>{o2.i=+e.target.value;if(o2.j<=o2.i)o2.j=o2.i+1;o2changed();});
+  $('o2-j').addEventListener('input',e=>{o2.j=+e.target.value;if(o2.i>=o2.j)o2.i=o2.j-1;o2changed();});
+  $('o2-g').addEventListener('change',e=>{o2.g=+e.target.value;});
+  $('o2-draw').addEventListener('click',()=>{o2draw();o2render();});
+  $('o2-run').addEventListener('click',()=>{o2run();o2render();});
+  $('o2-suggest').addEventListener('click',()=>{
+    const n=o2.n,p=o2.p,g=+$('o2-g').value;let best=null,fall=null;
+    for(let i=1;i<n;i++){let c=0;for(let j=i+1;j<=n;j++){c+=bpmf(n,j-1,p);
+      if(!fall||c>fall.c)fall={i:i,j:j,c:c};
+      if(c>=g){const w=j-i;if(!best||w<best.w||(w===best.w&&c<best.c))best={i:i,j:j,w:w,c:c};}}}
+    const pick=best||fall;o2.i=pick.i;o2.j=pick.j;o2changed();
+  });
+  $('o2-suggest').title='Shortest span of order statistics whose exact level is at least the target';
+  o2limits();o2draw();o2run();o2render();
+}
+
+drawB();drawN();initOS();
+window.addEventListener('hashchange',route);
+route();
+})();
+</script>
+
+</body></html>
